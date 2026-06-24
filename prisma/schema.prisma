@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           Int          @id @default(autoincrement())
+  name         String       @unique
+  password     String
+  email        String?      @unique
+  department   Department   @relation(fields: [departmentId], references: [id])
+  departmentId Int
+  permissions  Permission[]
+  File         File[]
+  posts        Post[]
+  templates    Template[]
+  // only super_admin | developer | depart_admin
+  type         String?
+  createdAt    DateTime     @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  content   String?
+  authorId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Permission {
+  id     Int    @id @default(autoincrement())
+  name   String
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+model Template {
+  id          String   @id @default(cuid())
+  name        String?  @default("未命名模板")
+  description String?  @default("没有描述")
+  content     String?
+  published   Boolean  @default(false)
+  author      User     @relation(fields: [authorId], references: [id])
+  authorId    Int
+  posts       Post[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Post {
+  id         String         @id @default(cuid())
+  title      String         @default("无标题记录")
+  content    String?
+  published  Boolean        @default(false)
+  author     User           @relation(fields: [authorId], references: [id])
+  authorId   Int
+  categories PostCategory[] @relation("PostCategoryToPost")
+  template   Template?      @relation(fields: [templateId], references: [id])
+  templateId String?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+}
+
+model PostCategory {
+  id    String @id @default(cuid())
+  name  String @unique @default("未命名分类")
+  posts Post[] @relation("PostCategoryToPost")
+}
+
+model File {
+  id           String         @id @default(cuid())
+  originalName String
+  storageName  String
+  user         User           @relation(fields: [userId], references: [id])
+  userId       Int
+  path         String
+  size         BigInt
+  type         String
+  createdAt    DateTime       @default(now())
+  categories   FileCategory[]
+}
+
+model FileCategory {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  files File[]
+}
+
+model Department {
+  id         Int          @id @default(autoincrement())
+  name       String       @unique
+  parentDept Department?  @relation("DepartmentToDepartment", fields: [parentId], references: [id])
+  parentId   Int?
+  users      User[]
+  subDepts   Department[] @relation("DepartmentToDepartment")
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+}

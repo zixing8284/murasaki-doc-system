@@ -1,0 +1,17 @@
+node_modules
+.next
+.git
+.gitignore
+*.md
+.env
+.env.local
+.env.*.local
+
+# Uploaded files (will be mounted as volume)
+public/file/*
+public/template/*
+public/tmp/*
+
+# Dev/test files
+database/*.db
+prisma/dev.db

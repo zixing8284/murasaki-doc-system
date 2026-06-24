@@ -1,0 +1,9 @@
+minimumReleaseAge: 4320
+trustPolicy: no-downgrade
+onlyBuiltDependencies:
+  - '@prisma/engines'
+  - bcrypt
+  - better-sqlite3
+  - prisma
+  - sharp
+  - unrs-resolver

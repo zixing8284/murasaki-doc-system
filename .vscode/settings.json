@@ -1,0 +1,7 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.autoImportFileExcludePatterns": [
+    "**/node_modules/next/router",
+    "@radix-ui/!(icons)"
+  ]
+}
