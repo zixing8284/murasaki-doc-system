@@ -2,6 +2,8 @@
 
 A Simple Document management system — Next.js + Prisma + SQLite + Tailwind CSS + shadcn/ui
 
+![MURASAKI Docs Screenshot](public/screenshot.png)
+
 ## Quick Start
 
 ```bash
