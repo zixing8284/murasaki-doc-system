@@ -30,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { delFile } from '@/lib/actions/file.action';
+import { buildFileAssetUrl } from '@/lib/file-path';
 import { ColumnDef, Row, Table } from '@tanstack/react-table';
 
 // Type to define the shape of our data.
@@ -119,9 +120,9 @@ const PreviewCell = ({ row }: { row: Row<PrismaFileWithCategory> }) => {
   const file = row.original;
   let href = '';
   if (file.type.startsWith('image/')) {
-    href = `/file/${file.storageName}`;
+    href = buildFileAssetUrl(file.path, file.storageName);
   } else if (file.type.startsWith('application/pdf')) {
-    href = `/file/${file.storageName}`;
+    href = buildFileAssetUrl(file.path, file.storageName);
   }
 
   return href ? (

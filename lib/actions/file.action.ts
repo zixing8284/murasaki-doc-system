@@ -1,6 +1,5 @@
 'use server';
 
-import { exec } from 'child_process';
 import fs from 'fs';
 import { nanoid } from 'nanoid';
 import { revalidatePath } from 'next/cache';
@@ -8,6 +7,10 @@ import path from 'path';
 import { promisify } from 'util';
 
 import { checkSuperAdmin } from '@/lib/dal';
+import {
+  normalizeFileAssetPath,
+  resolveStoredFileAssetPath,
+} from '@/lib/file-path';
 import {
   uploadFileFormSchema,
   CreateFileCategoryFormSchema,
@@ -23,7 +26,6 @@ type State = {
 };
 
 const writeFile = promisify(fs.writeFile);
-const execPromise = promisify(exec);
 
 function createDirectory(dirPath: string) {
   try {
@@ -39,8 +41,8 @@ function createDirectory(dirPath: string) {
 function sanitizeName(name: string) {
   return (
     name
-      // remove all non-word characters except spaces and hyphens
-      .replace(/[^\w\s-]/g, '')
+      // remove all non-word characters except spaces and hyphens (Unicode-aware)
+      .replace(/[^\w\s-]/gu, '')
       // replace all spaces with underscores
       .replace(/\s/g, '_')
   );
@@ -55,7 +57,7 @@ async function writeFileAndMove(
   await writeFile(tempFilePath, fileBuffer);
   const storageName = `${nanoid()}${path.extname(fileName)}`;
   const finalFilePath = path.join(finalDir, storageName);
-  await execPromise(`mv ${tempFilePath} ${finalFilePath}`);
+  fs.renameSync(tempFilePath, finalFilePath);
   return storageName;
 }
 
@@ -67,6 +69,7 @@ async function writeFileAndMove(
 */
 export async function saveFiles(prevState: State, formData: FormData) {
   const admin = await checkSuperAdmin();
+  const publicAssetPath = normalizeFileAssetPath(process.env.FILE_PATH);
 
   //  artically slow down the process 3s
   await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -90,7 +93,7 @@ export async function saveFiles(prevState: State, formData: FormData) {
   const validatedCat = validatedFields.data.cat;
   const tempDir = createDirectory(path.join(process.cwd(), 'public', 'tmp'));
   const finalDir = createDirectory(
-    path.join(process.cwd(), 'public', process.env.FILE_PATH!),
+    path.join(process.cwd(), 'public', publicAssetPath.slice(1)),
   );
 
   if (!tempDir || !finalDir) {
@@ -111,13 +114,13 @@ export async function saveFiles(prevState: State, formData: FormData) {
         finalDir,
         file.name,
       );
-      const originalName = Buffer.from(file.name, 'latin1').toString('utf8');
+      const originalName = file.name;
 
       await prisma.file.create({
         data: {
           originalName,
           storageName,
-          path: process.env.FILE_PATH!,
+          path: publicAssetPath,
           size: file.size,
           type: file.type,
 
@@ -230,7 +233,7 @@ export async function delFile(id: string) {
     const filePath = path.join(
       process.cwd(),
       'public',
-      'file',
+      resolveStoredFileAssetPath(file.path).slice(1),
       file.storageName,
     );
 
@@ -271,7 +274,7 @@ export async function delFiles(ids: string[]) {
       const filePath = path.join(
         process.cwd(),
         'public',
-        'file',
+        resolveStoredFileAssetPath(file.path).slice(1),
         file.storageName,
       );
 

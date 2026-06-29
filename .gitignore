@@ -34,6 +34,7 @@ yarn-error.log*
 .env.production
 /database/*
 !/database/.gitkeep
+/data/
 
 # prisma
 prisma/*.db

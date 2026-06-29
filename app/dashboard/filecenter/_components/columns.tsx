@@ -5,6 +5,7 @@ import prettyBytes from 'pretty-bytes';
 
 import { DataTableColumnHeader } from '@/components/table/table-column-header';
 import { Checkbox } from '@/components/ui/checkbox';
+import { buildFileAssetUrl } from '@/lib/file-path';
 import { ColumnDef, Row } from '@tanstack/react-table';
 
 // Type to define the shape of our data.
@@ -90,7 +91,10 @@ export const columns: ColumnDef<PrismaFileWithCategory>[] = [
     cell: ({ row }) => {
       return (
         <a
-          href={`/file/${row.original.storageName}`}
+          href={buildFileAssetUrl(
+            row.original.path,
+            row.original.storageName,
+          )}
           className=""
           download
           // Prevent triggering the holy-loader when clicking
@@ -120,9 +124,9 @@ const PreviewCell = ({ row }: { row: Row<PrismaFileWithCategory> }) => {
   const file = row.original;
   let href = '';
   if (file.type.startsWith('image/')) {
-    href = `/file/${file.storageName}`;
+    href = buildFileAssetUrl(file.path, file.storageName);
   } else if (file.type.startsWith('application/pdf')) {
-    href = `/file/${file.storageName}`;
+    href = buildFileAssetUrl(file.path, file.storageName);
   }
 
   return href ? (
