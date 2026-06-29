@@ -8,7 +8,11 @@
     "dev": "next dev",
     "seed": "node ./scripts/seed-demo.cjs",
     "lint": "eslint .",
-    "start": "next start"
+    "start": "next start",
+    "release": "pnpm version",
+    "release:patch": "pnpm version patch",
+    "release:minor": "pnpm version minor",
+    "release:major": "pnpm version major"
   },
   "dependencies": {
     "@ariakit/react": "^0.4.29",

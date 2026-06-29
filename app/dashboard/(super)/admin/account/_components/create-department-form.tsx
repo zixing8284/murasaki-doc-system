@@ -75,7 +75,7 @@ export default function CreateDepartmentForm({
       <Card className="rounded-lg border-none bg-next">
         <CardHeader>
           <CardTitle className="pb-2 text-lg font-semibold">
-            添加分店组织
+            添加组织
           </CardTitle>
           <CardDescription>
             添加一个新的组织，名称举例：研发部

@@ -1,4 +1,5 @@
 services:
+  # 本地构建镜像（默认）
   app:
     build: .
     ports:
@@ -13,3 +14,21 @@ services:
       - ./database:/app/database
       - ./data/files:/app/public/file
       - ./data/template:/app/public/template
+
+  # 从 GitHub Packages 拉取镜像
+  app-ghcr:
+    image: ghcr.io/zixing8284/murasaki-doc-system:latest
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: "file:/app/database/murasaki.db"
+      FILE_PATH: "/file"
+    volumes:
+      - ./database:/app/database
+      - ./data/files:/app/public/file
+      - ./data/template:/app/public/template
+    profiles:
+      - ghcr
